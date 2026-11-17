@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мій маршрут</title>
+<style>
+:root{--bg:#f1e9e1;--card:#fffaf5;--paper:#f8f2ec;--ink:#33281f;--muted:#7d6a5f;--accent:#8a6355;--gold:#c9a27e;--line:#e0d2c5;--chip:#ece0d4;--ok:#4f7a4a;--sh:0 1px 2px rgba(51,40,31,.05),0 10px 30px rgba(51,40,31,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1714;--card:#2a221e;--paper:#251e1a;--ink:#f2e8df;--muted:#b6a396;--accent:#d6aa93;--gold:#d8b48f;--line:#3e332c;--chip:#352b25;--ok:#a8c3a0;--sh:0 1px 2px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{--bg:#1c1714;--card:#2a221e;--paper:#251e1a;--ink:#f2e8df;--muted:#b6a396;--accent:#d6aa93;--gold:#d8b48f;--line:#3e332c;--chip:#352b25;--ok:#a8c3a0;--sh:0 1px 2px rgba(0,0,0,.3)}
+*{box-sizing:border-box}html,body{margin:0}
+body{overflow-x:hidden;background:var(--bg);color:var(--ink);font:15px/1.6 "Helvetica Neue",Arial,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.serif,h1,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700;line-height:1.08;margin:0}
+.px{font-family:"Courier New",monospace;font-weight:700;letter-spacing:.04em}
+.wrap{width:100%;max-width:760px;margin:0 auto;padding:14px 14px 34px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.badge{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.top h1{font-size:26px;margin-top:2px}
+.snd{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font:600 12px inherit;cursor:pointer;white-space:nowrap}
+.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:14px 0 12px}
+.stp{min-width:0;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.stp:disabled{cursor:default}
+.stp .bar{height:6px;border-radius:99px;background:var(--chip);overflow:hidden}
+.stp .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s}
+.stp.done .bar i{width:100%}.stp.on .bar i{width:55%;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+.stp span{display:block;font-size:10px;color:var(--muted);margin-top:5px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.stp.on span,.stp.done span{color:var(--ink)}.stp.done span:before{content:"✓ ";color:var(--ok)}
+.stage{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--sh);background:#2b2420}
+canvas#sc{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
+.cap{position:absolute;left:10px;top:10px;background:rgba(20,15,12,.75);color:#f6e7d8;border-radius:9px;padding:5px 9px;font-size:11px;max-width:72%}
+.cap b{color:#ffd59a}
+.tm{position:absolute;right:10px;top:10px;background:rgba(20,15,12,.75);color:#f6e7d8;border-radius:9px;padding:5px 9px;font-size:11px}
+.coach{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:end;margin:-34px 10px 0;position:relative;z-index:2}
+.coach img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--card);box-shadow:var(--sh);background:var(--chip)}
+.coach.big{grid-template-columns:96px 1fr}.coach.big img{width:96px;height:96px}
+.bub{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 18px 4px;padding:12px 14px;box-shadow:var(--sh);min-height:62px}
+.who{font-size:11px;font-weight:700;color:var(--accent)}.who small{color:var(--muted);font-weight:500}
+.bub p{margin:2px 0 0;font-size:15px}
+.caret{display:inline-block;width:2px;height:1em;background:var(--accent);vertical-align:-2px;margin-left:2px;animation:blink .8s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.feed{margin-top:16px;display:grid;gap:8px}
+.it{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;animation:pop .45s cubic-bezier(.2,1.4,.4,1) both}
+.it .ic{font-size:18px;line-height:1.3}.it b{display:block;font-size:14px}.it small{color:var(--muted);font-size:12.5px}
+.it.sum{border-color:var(--gold)}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh);animation:pop .5s both}
+.card h3{font-size:23px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;margin:0}.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:600}
+.plan{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.plan li{display:flex;gap:10px;align-items:center;font-size:14.5px}
+.plan b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--chip);color:var(--accent);flex:none}
+.ideas{display:grid;gap:10px}
+.idea{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .2s,transform .15s;animation:pop .5s both}
+.idea:hover{transform:translateY(-2px)}.idea.rec{border-color:var(--gold)}
+.idea.pick{border-color:var(--accent);box-shadow:0 0 0 4px rgba(138,99,85,.2)}
+.idea h3{font-size:21px}.idea .m{font-size:12.5px;color:var(--muted);margin:3px 0 8px}
+.idea ul{list-style:none;margin:0;padding:0;font-size:13.5px}.idea li{margin:3px 0}
+.tag{display:inline-block;font:700 10.5px inherit;border-radius:999px;padding:2px 8px;background:var(--gold);color:#2b211b;margin-left:6px;vertical-align:middle}
+.dots{letter-spacing:2px;color:var(--accent)}
+.pass{background:linear-gradient(150deg,#2f2621,#4a3a31);color:#f6ece3;border-radius:22px;padding:18px;animation:pop .5s both}
+.pass h3{font-size:27px;color:#fff}
+.pass .k{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pass .k div{background:rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;font-size:13px}
+.pass .k b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#d8b4a0}
+.map{margin-top:12px;font-size:13.5px;line-height:1.9}
+.nx{display:inline-block;margin-top:10px;background:#d8b4a0;color:#2b211b;border-radius:12px;padding:9px 14px;font-weight:700;font-size:14px}
+.ctrl{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 16px;font:700 14px inherit;cursor:pointer;background:var(--accent);color:#fff}
+.btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media (max-width:520px){.top h1{font-size:22px}.stp span{font-size:9px}.cap,.tm{font-size:10px}.coach{grid-template-columns:52px 1fr}.coach img{width:52px;height:52px}.coach.big{grid-template-columns:72px 1fr}.coach.big img{width:72px;height:72px}.pass .k{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="cf"></canvas>
+<div class="wrap">
+  <div class="top">
+    <div><div class="badge" id="badge"></div><h1 id="ttl"></h1></div>
+    <button class="snd" id="snd">🔇</button>
+  </div>
+  <div class="steps" id="steps"></div>
+  <div class="stage">
+    <canvas id="sc" width="320" height="176"></canvas>
+    <div class="cap" id="cap"></div>
+    <div class="tm px" id="tm">00:00</div>
+  </div>
+  <div class="coach" id="coach">
+    <img src="data:image/jpeg;base64,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" alt="Ксенія Окіс">
+    <div class="bub"><div class="who">Ксенія Окіс <small id="role"></small></div><p id="say"></p></div>
+  </div>
+  <div class="feed" id="feed"></div>
+  <div class="ctrl" id="ctrl"></div>
+  <p class="note" id="note"></p>
+</div>
+<script>
+/* ============ STATE: агент змінює ТІЛЬКИ цей блок ============
+ lang: "uk" або "ru" — мова екрана
+ stage: 0 Привіт · 1 Знайомство · 2 Що продають · 3 Що болить · 4 Три ідеї · 5 Паспорт (поточний етап)
+ demo: false у роботі з майстринею; true тільки для показу на презентації (кнопки «Програти все»)
+ name: ім'я майстрині або ""
+ say: репліки Ксенії для кожного етапу (6 рядків), від першої особи, мовою lang
+ expert: картка «Ти як експертка», пари "назва": "значення" її словами
+ products: знайдені продукти [назва, "ціна · формат"], productsSum: висновок одним реченням
+ pains: болі [фраза покупця, "звідки"]
+ ideas: 3 ідеї {t назва, who для кого, f "формат · ціна", why [3 опори], s впевненість 1–4, rec true у рекомендованої}
+ pick: номер обраної ідеї (0, 1, 2) або -1, якщо ще не обрала
+ first: перша ідея майстрині «до» (або "")
+*/
+const STATE = /*STATE*/{
+  "lang": "uk", "stage": 0, "demo": false, "name": "Олена",
+  "say": [
+    "Привіт, я Ксенія Окіс 🤍 Я поруч і проведу тебе за руку. За 25 хвилин у тебе буде ідея твого першого онлайн-продукту. Тут неможливо щось зламати.",
+    "Розкажи трохи про себе. Можна голосом і з помилками, а «не знаю» теж нормальна відповідь.",
+    "Поки ти п'єш чай ☕ моя команда дивиться, які міні-курси вже продають у твоїй сфері у Львові.",
+    "А тепер слухаємо твоїх майбутніх учениць: що в них болить і про що вони питають.",
+    "Дивись, що склалося 🔥 Три ідеї, і кожна про тебе. Друга, як на мене, найсильніша. Обирай серцем.",
+    "Олено, ти це зробила! 🎉 Ось твій паспорт ідеї. Далі зробимо з неї програму продукту."
+  ],
+  "expert": {"Сфера": "брови, ламінування", "Місто": "Львів", "У професії": "6 років", "Хвалять за": "«тримається 6 тижнів, без заломів»", "Питають": "«а ви навчаєте?»", "Хоче вчити": "майстринь-початківців"},
+  "products": [["Ламінування брів PRO", "590 грн · відеокурс, 12 уроків"], ["Брови з нуля", "1 200 грн · онлайн-курс з куратором"], ["Хна без плям", "450 грн · практикум"], ["Ідеальна форма за 3 кроки", "299 грн · міні-урок"], ["Ламінування + фарбування", "790 грн · інтенсив 3 дні"]],
+  "productsSum": "Найчастіше продають загальні курси за 450–800 грн. Про заломи після ламінування окремо майже ніхто.",
+  "pains": [["«Чому після ламінування ламаються волоски?»", "з питань у коментарях"], ["«Клієнтка каже: тримається тиждень»", "з відгуків на курси"], ["«Боюсь передержати склад»", "з форумів майстрів"], ["«Як підібрати склад під тонкі брови?»", "з питань твоїх клієнток"], ["«Курс купила, а практики нуль»", "з відгуків на курси"]],
+  "ideas": [
+    {"t": "Брови вдома між корекціями", "who": "для клієнток", "f": "гайд · 149 грн", "why": ["Ти вмієш: пояснюєш догляд кожній клієнтці", "Людям треба: «як доглядати, щоб трималось»", "Такого мало: курси є тільки для майстрів"], "s": 2},
+    {"t": "Ламінування без заломів", "who": "для майстринь до 2 років", "f": "відеопрактикум, 5 уроків · 349–499 грн", "why": ["Ти вмієш: «тримається 6 тижнів»", "Людям треба: «чому ламаються волоски» — часте питання", "Такого мало: про заломи окремо ніхто"], "s": 3, "rec": true},
+    {"t": "Склад під тип брів", "who": "для майстринь", "f": "чек-лист + урок · 199 грн", "why": ["Ти вмієш: підбираєш склад під тонкі брови", "Людям треба: «боюсь передержати»", "Такого мало: є, але загально"], "s": 2}
+  ],
+  "pick": 1, "first": "курс по бровах для всіх"
+}/*END STATE*/;
+
+const T = {
+  uk: {badge:"Маршрут · крок 1 / 7", ttl:"Ідея твого продукту", role:"· твій коуч", steps:["Привіт","Знайомство","Що продають","Що болить","3 ідеї","Паспорт"],
+    caps:["<b>КОМАНДА КСЕНІЇ</b> готова","<b>ТИ</b> розповідаєш про себе","<b>АГЕНТ-ДОСЛІДНИК</b> шукає курси","<b>АГЕНТ-СЛУХАЧ</b> читає питання","<b>АГЕНТ-ІДЕЙНИЦЯ</b> малює ідеї","<b>КОМАНДА</b> святкує"],
+    plan:["Знайомимось: ти розповідаєш про себе","Моя команда шукає, що вже продають і що болить у людей","Я показую 3 ідеї, ти обираєш одну","Ти отримуєш паспорт своєї ідеї"], planT:"Що буде далі", expT:"✨ Ти як експертка", sumT:"Що це означає для тебе",
+    sure:"Наскільки впевнена", recT:"моя порада", passT:"📜 Паспорт ідеї", pI:"Ідея", pW:"Для кого", pF:"Формат і ціна", pY:"Чому сильна", pYv:"вмієш · треба · такого мало", before:"Було", next:"Далі: програма продукту →",
+    map:["✅ 1. Ідея — готово сьогодні","⬜ 2. Програма продукту","⬜ 3. Сайт · ⬜ 4. Оплата · ⬜ 5. Reels · ⬜ 6. Директ · ⬜ 7. Реклама"],
+    pickSay:n=>`Гарний вибір! Напиши мені в чат: ${n} 🤍`, pickDemo:"Гарний вибір! Збираю твій паспорт ідеї 🤍", play:"▶ Програти все", pause:"⏸ Пауза", nextB:"Далі →", sOn:"🔊 Звук", sOff:"🔇 Звук",
+    note:"Це твій екран маршруту. Відповідай мені в чаті, а тут дивись, як працює моя команда.", demo:"Демо: дані вигадані."},
+  ru: {badge:"Маршрут · шаг 1 / 7", ttl:"Идея твоего продукта", role:"· твой коуч", steps:["Привет","Знакомство","Что продают","Что болит","3 идеи","Паспорт"],
+    caps:["<b>КОМАНДА КСЕНИИ</b> готова","<b>ТЫ</b> рассказываешь о себе","<b>АГЕНТ-ИССЛЕДОВАТЕЛЬ</b> ищет курсы","<b>АГЕНТ-СЛУШАТЕЛЬ</b> читает вопросы","<b>АГЕНТ-ИДЕЙНИЦА</b> рисует идеи","<b>КОМАНДА</b> празднует"],
+    plan:["Знакомимся: ты рассказываешь о себе","Моя команда ищет, что уже продают и что болит у людей","Я показываю 3 идеи, ты выбираешь одну","Ты получаешь паспорт своей идеи"], planT:"Что будет дальше", expT:"✨ Ты как эксперт", sumT:"Что это значит для тебя",
+    sure:"Насколько уверена", recT:"мой совет", passT:"📜 Паспорт идеи", pI:"Идея", pW:"Для кого", pF:"Формат и цена", pY:"Почему сильная", pYv:"умеешь · нужно · такого мало", before:"Было", next:"Дальше: программа продукта →",
+    map:["✅ 1. Идея — готово сегодня","⬜ 2. Программа продукта","⬜ 3. Сайт · ⬜ 4. Оплата · ⬜ 5. Reels · ⬜ 6. Директ · ⬜ 7. Реклама"],
+    pickSay:n=>`Отличный выбор! Напиши мне в чат: ${n} 🤍`, pickDemo:"Отличный выбор! Собираю твой паспорт идеи 🤍", play:"▶ Проиграть всё", pause:"⏸ Пауза", nextB:"Дальше →", sOn:"🔊 Звук", sOff:"🔇 Звук",
+    note:"Это твой экран маршрута. Отвечай мне в чате, а здесь смотри, как работает моя команда.", demo:"Демо: данные вымышленные."}
+};
+const L = T[STATE.lang] || T.uk;
+const $ = s => document.querySelector(s);
+document.documentElement.lang = STATE.lang === "ru" ? "ru" : "uk";
+$('#badge').textContent = L.badge; $('#ttl').textContent = L.ttl; $('#role').textContent = L.role;
+$('#note').textContent = L.note + (STATE.demo ? " " + L.demo : "");
+
+/* ============ ЗВУК (без файлів) ============ */
+let AC = null, soundOn = false;
+try { soundOn = localStorage.getItem('okis-snd') === '1'; } catch(e) {}
+function ac(){ if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } return AC; }
+function tone(f, d, type, vol, when){ const a = ac(); if (!a || !soundOn) return; const t = a.currentTime + (when||0); const o = a.createOscillator(), g = a.createGain(); o.type = type||'sine'; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol||.12, t+.012); g.gain.exponentialRampToValueAtTime(0.0001, t+d); o.connect(g).connect(a.destination); o.start(t); o.stop(t+d+.02); }
+const SND = {
+  pop(){ tone(880,.09,'triangle',.10); tone(1320,.07,'sine',.05,.03); },
+  tick(){ tone(2200,.015,'square',.012); },
+  step(){ [523,659,784].forEach((f,i)=>tone(f,.22,'sine',.09,i*.08)); },
+  idea(){ [659,880,1047,1319].forEach((f,i)=>tone(f,.18,'triangle',.08,i*.06)); },
+  win(){ [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.28,'triangle',.10,i*.09)); },
+  walk(){ tone(180,.03,'square',.015); }
+};
+function sndLabel(){ $('#snd').textContent = soundOn ? L.sOn : L.sOff; }
+$('#snd').addEventListener('click', () => { soundOn = !soundOn; try { localStorage.setItem('okis-snd', soundOn?'1':'0'); } catch(e) {} const a = ac(); if (a && a.state === 'suspended') a.resume(); sndLabel(); if (soundOn) SND.step(); });
+sndLabel();
+
+/* ============ ПІКСЕЛЬНИЙ ОФІС ============ */
+const AT = new Image(); AT.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAABQCAMAAACOCFjHAAAACXBIWXMAAAABAAAAAQBPJcTWAAADAFBMVEUAAAAAAAEAAgEDAAEFBQMMAAEMDQwNLAoRAAAVFBQVJRQWCAUXHRcaFxceHh4gFA8gHhsiHhwjJCMlAAAmJSQnIyErKyosGhotVicvCQ0wTC4zNTQ0PDk6MjI6Nzs7R0I/ODg/WEtAIxZCQ0JFMzdFbkdHczdJMStKS0pMCRVMTU5OMiZTPjFWZ1RaRTthDg9jUEhklFplNSRsW0pzRDJzeHp5VkJ7n2N+Sx9+s3t/KB2CSR+FLkuHf2qIXz6VJkmdRjmlpaWqd1qqp6atiVevo5+wiFawjGuyRjayhFm2vMC8amC+snvBVmbCVGnCs6nDVW/OnnzPpH/QpHzUzcvXonjYysXhllrldyfm19Pm4eLt6+nuwaH48vD8/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f78/f4A/wAJ7TeKAAABAHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AU/cHJQAAEABJREFUeJztnAtb2srWx30eSyIRuVghGBU80CB3CdeKje3B8nKq7ZtqKU8Dyvf/FjlrzUySSbgJ27r39ux/K2ZlBUJ+/c+alYG9t6z/PbUcPSHe+tPe5p+m1o2j1uqYAnpP9NveUp/o+re9viUQPS3fGnNqrYwR0Pv3P388PLz/+QcQXVMtSPb7w/Hj4+OiPChItdnJBSGbDYNcRF5ggoDZbJbuaU05tVbGAOiy9/MSDXT5s3f51Pfk9US/D5c/HsGeefn+42jUH49Go/HYyXuBBIMHBwfxMEdoHWBw+QcHR4lEEBDNAwb5YCJxdHBA86kbTqmVMQK6vPz5Ex0EG0/Dc32NQIZ9ZonrMbn8/mj4eD0nPwvIByQYj8disXgwHD0ILgC2jM/R0REBAhSEecAEsgkOggMFBPAvRxTI0njLet9zHdR70iBzgIwokOXx9ePINPtj0xzZeRtINEaB2HHMF9v5FYDCLpCsMAtMyLoOClNAF7kLTdNyFzYQDXao2oVmxzk84ILmARDvIAaoRuS+CW/sAwIERsgAftgOL6CxSR1kLgAUPIihgvhAd/gBLR1wNhABnIIAZoCFAZTgcRAPYBGwHAM2z0FNBxh9C5feuM8D6dPYpIPIHPdn8teY6I+HIArID4TE0WA8HEYq84AFg7E4DDquZnHAHCCwkRDmAEvAttdB2oV6obZcx0B0gfscYBDqurrIQc0e2XKK9qUvngukP8J4NJ4Fdk2qd98wDA+gILrEARINRn2A+DyMEYii8bhjqKgLzAGS8DnIBgYOSngdpIL+BY8OICY+tvNbwMPnIH/R9scIYAgTNziCAsGt/mjEA+Ly1+N+D3R3B4wcQOFg2AUSj0apX8JhG5Anf8BwMUC+2AaCvz0OSjgOikZ3HQc1vLNUY1UMgC7RHwDgkjqo5gM2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";
+const FR = {girl:[0,1,2], res:[3,4,5,6], lis:[7,8,9,10,11], ide:[12,13,14], pc:[15,16,17]};
+const OB = {desk:[0,32,48,32], board:[48,32,32,32], shelf:[80,32,32,16], sofa:[112,32,32,16], coffee:[144,32,16,16], clock:[160,32,16,32], cactus:[176,32,16,32], hang:[192,32,16,32], plant:[208,32,32,48], floor:[240,32,16,16]};
+const cv = $('#sc'), cx = cv.getContext('2d'); cx.imageSmoothingEnabled = false;
+const W = 320, H = 176, WALL = 52; let stage = Math.max(0, Math.min(5, STATE.stage|0)), tick = 0, t0 = performance.now();
+function fr(i, x, y, flip){ if (!AT.complete) return; cx.save(); if (flip){ cx.translate(Math.round(x)+16, Math.round(y)); cx.scale(-1,1); cx.drawImage(AT, i*16, 0, 16, 32, 0, 0, 16, 32); } else cx.drawImage(AT, i*16, 0, 16, 32, Math.round(x), Math.round(y), 16, 32); cx.restore(); }
+function ob(n, x, y){ if (!AT.complete) return; const o = OB[n]; cx.drawImage(AT, o[0], o[1], o[2], o[3], Math.round(x), Math.round(y), o[2], o[3]); }
+function walk(f, x1, x2, y, sp, ph){ const span = x2-x1, t = (tick*sp+ph)%(span*2), r = t < span, x = r ? x1+t : x2-(t-span); fr(f[Math.floor(tick/8)%3], x, y, !r); if (tick%16===0) SND.walk(); return x; }
+function draw(){
+  tick++;
+  const g = cx.createLinearGradient(0,0,0,WALL); g.addColorStop(0,'#dcc6b0'); g.addColorStop(1,'#c8ad94'); cx.fillStyle = g; cx.fillRect(0,0,W,WALL);
+  cx.fillStyle = '#a98a70'; cx.fillRect(0,WALL-3,W,3);
+  for (let y = WALL; y < H; y += 16) for (let x = 0; x < W; x += 16) ob('floor', x, y);
+  cx.save(); cx.globalCompositeOperation = 'multiply'; cx.fillStyle = '#c99a72'; cx.fillRect(0,WALL,W,H-WALL); cx.restore();
+  cx.fillStyle = 'rgba(40,25,15,.12)'; cx.fillRect(0,WALL,W,6);
+  ob('board',150,12); ob('clock',120,10); ob('hang',286,4); ob('shelf',24,30); ob('shelf',60,30);
+  ob('plant',4,40); ob('cactus',300,120); ob('sofa',236,128);
+  const typing = stage === 1 || stage >= 4;
+  fr(typing ? FR.girl[1+Math.floor(tick/10)%2] : FR.girl[0], 140, 90);
+  ob('desk',116,112); fr(stage === 1 ? FR.pc[Math.floor(tick/12)%3] : FR.pc[0], 118, 100); ob('coffee',156,110);
+  if (stage === 0){ const j = Math.abs(Math.sin(tick/14))*3; fr(FR.res[3],40,60-j); fr(FR.lis[3],244,108-j); fr(FR.ide[2],196,60-j); }
+  else {
+    if (stage === 2){ walk(FR.res,28,96,46,.6,0); if (tick%120<60){ cx.fillStyle='#fffaf5'; cx.fillRect(42,30,14,11); cx.fillStyle='#8a6355'; cx.fillRect(46,33,5,5); cx.fillRect(50,37,3,2); } }
+    else if (stage !== 5) fr(FR.res[3],40,60);
+    if (stage === 3) walk(FR.lis,200,280,96,.5,30); else if (stage !== 5) fr(FR.lis[3+Math.floor(tick/30)%2],244,108);
+    if (stage === 4){ fr(FR.ide[Math.floor(tick/10)%2],158,40); if (tick%40<20){ cx.fillStyle='#ffd59a'; cx.fillRect(170+(tick%7)*2,22+(tick%5)*2,2,2); } }
+    else if (stage !== 5) fr(FR.ide[2],196,60);
+    if (stage === 5){ const j = k => Math.abs(Math.sin(tick/8+k))*6; fr(FR.res[3],40,60-j(0)); fr(FR.ide[2],196,60-j(1)); fr(FR.lis[3],244,108-j(2)); for (let i=0;i<14;i++){ cx.fillStyle=['#ffd59a','#d8b4a0','#a8c3a0','#fff'][i%4]; cx.fillRect((i*53+tick*1.3)%W,(i*37+tick*1.7)%WALL,2,2); } }
+  }
+  if (typing){ cx.fillStyle = 'rgba(255,230,180,.10)'; cx.beginPath(); cx.arc(134,108,26,0,7); cx.fill(); }
+  const s = Math.floor((performance.now()-t0)/1000); $('#tm').textContent = String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ============ ДІАЛОГ І ЗНАХІДКИ ============ */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let typer = null, timers = [];
+function say(txt){ clearInterval(typer); const el = $('#say'); let i = 0; typer = setInterval(() => { i++; el.innerHTML = esc(txt.slice(0,i)) + (i < txt.length ? '<span class="caret"></span>' : ''); if (i%3===0) SND.tick(); if (i >= txt.length) clearInterval(typer); }, 22); }
+function later(ms, fn){ timers.push(setTimeout(fn, ms)); }
+function add(html, s){ const d = document.createElement('div'); d.innerHTML = html; $('#feed').appendChild(d.firstElementChild); if (s) SND[s](); }
+function has(i){ return i === 0 || i === 1 && Object.keys(STATE.expert||{}).length || i === 2 && (STATE.products||[]).length || i === 3 && (STATE.pains||[]).length || i === 4 && (STATE.ideas||[]).length || i === 5 && STATE.pick >= 0; }
+function steps(){ $('#steps').innerHTML = L.steps.map((s,i) => `<button class="stp ${i<stage?'done':i===stage?'on':''}" data-i="${i}" ${STATE.demo||i<=STATE.stage?'':'disabled'}><div class="bar"><i></i></div><span>${s}</span></button>`).join(''); }
+function go(i, quiet){
+  stage = Math.max(0, Math.min(5, i)); timers.forEach(clearTimeout); timers = []; $('#feed').innerHTML = '';
+  steps(); $('#cap').innerHTML = L.caps[stage]; say((STATE.say||[])[stage] || ''); $('#coach').classList.toggle('big', stage === 0);
+  if (!quiet) SND.step();
+  if (stage === 0) later(900, () => add(`<div class="card"><h3>${L.planT}</h3><ol class="plan">${L.plan.map((p,k)=>`<li><b>${k+1}</b>${p}</li>`).join('')}</ol></div>`, 'pop'));
+  if (stage === 1 && has(1)) later(1400, () => add(`<div class="card"><h3>${L.expT}</h3><dl class="kv">${Object.entries(STATE.expert).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`, 'pop'));
+  if (stage === 2){ (STATE.products||[]).forEach((p,k) => later(900+k*900, () => add(`<div class="it"><span class="ic">🔍</span><div><b>${esc(p[0])}</b><small>${esc(p[1])}</small></div></div>`, 'pop'))); if (STATE.productsSum) later(900+(STATE.products||[]).length*900+400, () => add(`<div class="it sum"><span class="ic">💡</span><div><b>${L.sumT}</b><small>${esc(STATE.productsSum)}</small></div></div>`, 'idea')); }
+  if (stage === 3) (STATE.pains||[]).forEach((p,k) => later(900+k*850, () => add(`<div class="it"><span class="ic">💬</span><div><b>${esc(p[0])}</b><small>${esc(p[1])}</small></div></div>`, 'pop')));
+  if (stage === 4) later(700, () => add(`<div class="ideas">${(STATE.ideas||[]).map((d,k)=>`<button class="idea ${d.rec?'rec':''} ${STATE.pick===k&&!STATE.demo?'pick':''}" data-k="${k}" style="animation-delay:${k*.25}s"><h3>💡 ${k+1}. ${esc(d.t)}${d.rec?`<span class="tag">${L.recT}</span>`:''}</h3><div class="m">${esc(d.who)} · ${esc(d.f)}</div><ul>${(d.why||[]).map(w=>`<li>✅ ${esc(w)}</li>`).join('')}</ul><div class="m">${L.sure}: <span class="dots">${'●'.repeat(d.s||0)}${'○'.repeat(4-(d.s||0))}</span></div></button>`).join('')}</div>`, 'idea'));
+  if (stage === 5 && STATE.pick >= 0){ const d = STATE.ideas[STATE.pick]; later(500, () => { add(`<div class="pass"><h3>${L.passT}</h3><div class="k"><div><b>${L.pI}</b>${esc(d.t)}</div><div><b>${L.pW}</b>${esc(d.who)}</div><div><b>${L.pF}</b>${esc(d.f)}</div><div><b>${L.pY}</b>${L.pYv}</div>${STATE.first?`<div><b>${L.before}</b>${esc(STATE.first)}</div>`:''}</div><div class="map">${L.map.join('<br>')}</div><span class="nx">${L.next}</span></div>`, 'win'); confetti(); }); }
+}
+$('#steps').addEventListener('click', e => { const b = e.target.closest('.stp'); if (b && !b.disabled){ stop(); go(+b.dataset.i); } });
+$('#feed').addEventListener('click', e => { const b = e.target.closest('.idea'); if (!b) return; document.querySelectorAll('.idea').forEach(x => x.classList.toggle('pick', x === b)); const k = +b.dataset.k; SND.idea(); confetti(50);
+  if (STATE.demo){ STATE.pick = k; say(L.pickDemo); later(1600, () => go(5)); } else say(L.pickSay(k+1)); });
+
+/* демо-кнопки */
+let pt = null;
+function stop(){ if (pt){ clearInterval(pt); pt = null; const b = $('#play'); if (b) b.textContent = L.play; } }
+if (STATE.demo){
+  $('#ctrl').innerHTML = `<button class="btn" id="play">${L.play}</button><button class="btn g" id="nxt">${L.nextB}</button>`;
+  $('#nxt').addEventListener('click', () => { stop(); go(stage === 5 ? 0 : stage + 1); });
+  $('#play').addEventListener('click', () => { if (pt){ stop(); return; } go(0); $('#play').textContent = L.pause; pt = setInterval(() => { if (stage === 4){ const b = document.querySelector('.idea[data-k="'+(STATE.pick>=0?STATE.pick:1)+'"]'); if (b) b.click(); stop(); return; } go(stage + 1); }, 8000); });
+}
+
+/* конфеті */
+const cc = $('#cf'), c2 = cc.getContext('2d'); let parts = [];
+function rs(){ cc.width = innerWidth; cc.height = innerHeight; } addEventListener('resize', rs); rs();
+function confetti(n){ if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; const was = parts.length; for (let i=0;i<(n||140);i++) parts.push({x:innerWidth/2,y:innerHeight*.45,vx:(Math.random()-.5)*14,vy:-Math.random()*13-4,s:Math.random()*6+4,c:['#c9a27e','#8a6355','#e9c7a8','#a8c3a0','#f6d2c4'][i%5],r:Math.random()*6,l:120}); if (!was) loop(); }
+function loop(){ c2.clearRect(0,0,cc.width,cc.height); parts.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; p.r += .2; p.l--; c2.save(); c2.translate(p.x,p.y); c2.rotate(p.r); c2.fillStyle = p.c; c2.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); c2.restore(); }); parts = parts.filter(p => p.l > 0 && p.y < cc.height+20); if (parts.length) requestAnimationFrame(loop); else c2.clearRect(0,0,cc.width,cc.height); }
+
+go(stage, true);
+</script>
+</body>
+</html>
